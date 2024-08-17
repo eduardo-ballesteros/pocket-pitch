@@ -1,0 +1,21 @@
+run = "npm install && npm run build && npm start"
+entrypoint = "server/server.js"
+
+[env]
+TAVILY_API_KEY = "${TAVILY_API_KEY}"
+PERPLEXITY_API_KEY = "${PERPLEXITY_API_KEY}"
+
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["sh", "-c", "npm install && npm run build && npm start"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 3001
+externalPort = 80
