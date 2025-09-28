@@ -24,18 +24,6 @@ module.exports = {
   }
 ```
 
-# replit.nix
-
-```nix
-{ pkgs }: {
-  deps = [
-    pkgs.nodejs-18_x
-    pkgs.nodePackages.typescript-language-server
-    pkgs.yarn
-    pkgs.replitPackages.jest
-  ];
-}
-```
 
 # package.json
 
@@ -78,32 +66,6 @@ module.exports = {
 }
 ```
 
-# .replit
-
-```
-run = "npm install && npm run build && npm start"
-entrypoint = "server/server.js"
-
-[env]
-TAVILY_API_KEY = "${TAVILY_API_KEY}"
-PERPLEXITY_API_KEY = "${PERPLEXITY_API_KEY}"
-
-[nix]
-channel = "stable-22_11"
-
-[deployment]
-run = ["sh", "-c", "npm install && npm run build && npm start"]
-deploymentTarget = "cloudrun"
-
-[[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 3001
-externalPort = 80
-
-```
 
 # .gitignore
 
@@ -240,22 +202,6 @@ dist
 .pnp.*
 ```
 
-# .breakpoints
-
-```
-{
-  "files": {
-    "index.js": [
-      {
-        "id": "bc3a8ff0-c242-4e64-8eed-249a5edae4c2",
-        "line": 2,
-        "version": 0,
-        "index": 0
-      }
-    ]
-  }
-}
-```
 
 # src/index.js
 
@@ -379,12 +325,6 @@ app.listen(PORT, () => {
 </html>
 ```
 
-# .upm/store.json
-
-```json
-{"version":2,"languages":{"nodejs-npm":{"specfileHash":"076f916b2bd3a11fcf952961c83fdd82","lockfileHash":"6b0b1d5001a2ff5a5d055eacdb831aac","guessedImports":["@tailwindcss/typography"],"guessedImportsHash":"55c088e40695bf4af93e5b4493573a6b"}}}
-
-```
 
 # src/components/CompanyInfoGenerator.js
 
