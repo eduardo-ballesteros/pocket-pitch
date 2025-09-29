@@ -21,7 +21,7 @@ router.post('/generate-info', async (req, res) => {
 
     // Perplexity API call
     const perplexityResponse = await axios.post('https://api.perplexity.ai/chat/completions', {
-      model: 'llama-3.1-sonar-large-128k-online',
+      model: 'sonar',
       messages: [
         {
           role: 'system',
