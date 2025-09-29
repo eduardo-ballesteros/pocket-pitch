@@ -57,3 +57,5 @@ Pocket Pitch is a React app with Express backend that generates tailored busines
 - Frontend routing is handled by React (catch-all route in `vercel.json`)
 - Environment variables must be configured in Vercel dashboard
 - Error handling includes API key status in error responses
+- Uses Perplexity Sonar model for AI-powered pitch generation
+- Tested with Playwright E2E test suite
