@@ -29,8 +29,7 @@ module.exports = async (req, res) => {
       max_results: 5
     }, {
       headers: {
-        'Content-Type': 'application/json',
-        'X-API-KEY': process.env.TAVILY_API_KEY
+        'Content-Type': 'application/json'
       }
     });
 
