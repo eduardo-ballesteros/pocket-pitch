@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   // Test Tavily API
   try {
     const tavilyResponse = await axios.post('https://api.tavily.com/search', {
-      api_key: process.env.TAVILY_API_KEY,
+      api_key: process.env.TAVILY_API_KEY.replace(/"/g, ''),
       query: 'test query',
       search_depth: 'basic',
       max_results: 1
@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY.replace(/"/g, '')}`,
       }
     });
     results.perplexity = {

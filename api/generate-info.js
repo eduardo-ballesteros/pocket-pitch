@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
     // Tavily API search
     const searchQuery = `${serviceProviderName} ${targetCustomerName} ${context}`;
     const tavilyResponse = await axios.post('https://api.tavily.com/search', {
-      api_key: process.env.TAVILY_API_KEY,
+      api_key: process.env.TAVILY_API_KEY.replace(/"/g, ''),
       query: searchQuery,
       search_depth: 'basic',
       max_results: 5
@@ -64,7 +64,7 @@ Format the response in clear, professional language that can be used in a busine
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY.replace(/"/g, '')}`,
       }
     });
 
