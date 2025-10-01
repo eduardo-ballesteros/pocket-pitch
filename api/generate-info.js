@@ -23,10 +23,10 @@ module.exports = async (req, res) => {
     const { serviceProvider, targetCustomer, context, debug } = req.body;
 
     // Support both old and new format
-    const serviceProviderName = serviceProvider?.name || req.body.serviceProviderName;
-    const serviceProviderUrl = serviceProvider?.url || req.body.serviceProviderUrl;
-    const targetCustomerName = targetCustomer?.name || req.body.targetCustomerName;
-    const targetCustomerUrl = targetCustomer?.url || req.body.targetCustomerUrl;
+    const serviceProviderName = (serviceProvider && serviceProvider.name) || req.body.serviceProviderName;
+    const serviceProviderUrl = (serviceProvider && serviceProvider.url) || req.body.serviceProviderUrl;
+    const targetCustomerName = (targetCustomer && targetCustomer.name) || req.body.targetCustomerName;
+    const targetCustomerUrl = (targetCustomer && targetCustomer.url) || req.body.targetCustomerUrl;
 
     const debugInfo = debug ? {
       request: { serviceProvider: { name: serviceProviderName, url: serviceProviderUrl }, targetCustomer: { name: targetCustomerName, url: targetCustomerUrl }, context },
