@@ -26,11 +26,18 @@ const CompanyInfoGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState(null);
+
+  const isDebugMode = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debug') === 'true';
+  };
 
   const handleGenerate = async () => {
     setLoading(true);
     setError('');
     setResult('');
+    setDebugInfo(null);
 
     try {
       const response = await fetch('/api/generate-info', {
@@ -39,7 +46,8 @@ const CompanyInfoGenerator = () => {
         body: JSON.stringify({
           serviceProvider: { name: serviceProviderName, url: serviceProviderUrl },
           targetCustomer: { name: targetCustomerName, url: targetCustomerUrl },
-          context
+          context,
+          debug: isDebugMode()
         }),
       });
 
@@ -49,6 +57,9 @@ const CompanyInfoGenerator = () => {
 
       const data = await response.json();
       setResult(data.result);
+      if (data.debug) {
+        setDebugInfo(data.debug);
+      }
     } catch (err) {
       setError('An error occurred while generating the information. Please try again.');
     } finally {
@@ -126,6 +137,61 @@ const CompanyInfoGenerator = () => {
             <div className="mt-8 p-6 bg-white shadow-lg rounded-lg">
               <h3 className="text-xl font-semibold mb-4">Generated Pitch</h3>
               <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: result }} />
+            </div>
+          )}
+          {debugInfo && (
+            <div className="mt-8 p-6 bg-gray-100 shadow-lg rounded-lg">
+              <h3 className="text-xl font-semibold mb-4 text-red-600">Debug Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-lg mb-2">Request Data</h4>
+                  <pre className="bg-white p-4 rounded overflow-x-auto text-xs">
+                    {JSON.stringify(debugInfo.request, null, 2)}
+                  </pre>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg mb-2">Tavily API</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium">Request:</p>
+                      <pre className="bg-white p-4 rounded overflow-x-auto text-xs">
+                        {JSON.stringify(debugInfo.tavily.request, null, 2)}
+                      </pre>
+                    </div>
+                    <div>
+                      <p className="font-medium">Response:</p>
+                      <pre className="bg-white p-4 rounded overflow-x-auto text-xs">
+                        {JSON.stringify(debugInfo.tavily.response, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg mb-2">Perplexity API</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium">Request:</p>
+                      <pre className="bg-white p-4 rounded overflow-x-auto text-xs">
+                        {JSON.stringify(debugInfo.perplexity.request, null, 2)}
+                      </pre>
+                    </div>
+                    <div>
+                      <p className="font-medium">Response:</p>
+                      <pre className="bg-white p-4 rounded overflow-x-auto text-xs">
+                        {JSON.stringify(debugInfo.perplexity.response, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+                {debugInfo.error && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-2 text-red-600">Error Details</h4>
+                    <pre className="bg-white p-4 rounded overflow-x-auto text-xs text-red-600">
+                      {JSON.stringify(debugInfo.error, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
