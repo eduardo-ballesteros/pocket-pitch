@@ -20,7 +20,19 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { serviceProviderName, serviceProviderUrl, targetCustomerName, targetCustomerUrl, context } = req.body;
+    const { serviceProvider, targetCustomer, context, debug } = req.body;
+
+    // Support both old and new format
+    const serviceProviderName = serviceProvider?.name || req.body.serviceProviderName;
+    const serviceProviderUrl = serviceProvider?.url || req.body.serviceProviderUrl;
+    const targetCustomerName = targetCustomer?.name || req.body.targetCustomerName;
+    const targetCustomerUrl = targetCustomer?.url || req.body.targetCustomerUrl;
+
+    const debugInfo = debug ? {
+      request: { serviceProvider: { name: serviceProviderName, url: serviceProviderUrl }, targetCustomer: { name: targetCustomerName, url: targetCustomerUrl }, context },
+      tavily: {},
+      perplexity: {}
+    } : null;
 
     console.log('[generate-info] Request body received:', {
       serviceProviderName,
@@ -61,6 +73,10 @@ module.exports = async (req, res) => {
 
     let tavilyResponse;
     try {
+      if (debug) {
+        debugInfo.tavily.request = { query: searchQuery };
+      }
+
       tavilyResponse = await axios.post('https://api.tavily.com/search', {
         api_key: cleanTavilyKey,
         query: searchQuery,
@@ -72,6 +88,13 @@ module.exports = async (req, res) => {
         }
       });
       console.log('[generate-info] Tavily API success, results:', tavilyResponse.data.results ? tavilyResponse.data.results.length : 0);
+
+      if (debug) {
+        debugInfo.tavily.response = {
+          status: tavilyResponse.status,
+          data: tavilyResponse.data
+        };
+      }
     } catch (tavilyError) {
       console.error('[generate-info] Tavily API error:', {
         status: tavilyError.response ? tavilyError.response.status : 'no response',
@@ -92,7 +115,7 @@ module.exports = async (req, res) => {
 
     let perplexityResponse;
     try {
-      perplexityResponse = await axios.post('https://api.perplexity.ai/chat/completions', {
+      const perplexityRequestData = {
         model: 'sonar',
         messages: [
           {
@@ -119,7 +142,13 @@ Please provide:
 Format the response in clear, professional language that can be used in a business pitch.`
           }
         ]
-      }, {
+      };
+
+      if (debug) {
+        debugInfo.perplexity.request = perplexityRequestData;
+      }
+
+      perplexityResponse = await axios.post('https://api.perplexity.ai/chat/completions', perplexityRequestData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': authHeader
@@ -127,6 +156,13 @@ Format the response in clear, professional language that can be used in a busine
       });
 
       console.log('[generate-info] Perplexity API success');
+
+      if (debug) {
+        debugInfo.perplexity.response = {
+          status: perplexityResponse.status,
+          data: perplexityResponse.data
+        };
+      }
     } catch (perplexityError) {
       console.error('[generate-info] Perplexity API error:', {
         status: perplexityError.response ? perplexityError.response.status : 'no response',
@@ -143,14 +179,33 @@ Format the response in clear, professional language that can be used in a busine
     const htmlContent = md.render(markdown);
 
     console.log('[generate-info] Successfully generated response');
-    res.status(200).json({ result: htmlContent });
+
+    const response = { result: htmlContent };
+    if (debug) {
+      response.debug = debugInfo;
+    }
+
+    res.status(200).json(response);
   } catch (error) {
     console.error('[generate-info] Final error handler:', error.message);
+
+    if (debug && debugInfo) {
+      debugInfo.error = {
+        name: error.name,
+        message: error.message,
+        response: error.response ? {
+          status: error.response.status,
+          data: error.response.data
+        } : null
+      };
+    }
+
     res.status(500).json({
       message: 'Internal Server Error',
       error: error.message,
       tavily_key_set: !!process.env.TAVILY_API_KEY,
-      perplexity_key_set: !!process.env.PERPLEXITY_API_KEY
+      perplexity_key_set: !!process.env.PERPLEXITY_API_KEY,
+      debug: debug ? debugInfo : undefined
     });
   }
 };
